@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-class GenerateCodeService implements GenerateCodeServiceInterface
+class GenerateCode implements GenerateCodeServiceInterface
 {
     const CHARACTERS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 

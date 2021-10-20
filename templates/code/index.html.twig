@@ -17,4 +17,8 @@
         </div>
     </div>
     {{ form_end(codeForm) }}
+
+    {% if fileIsWrite == true%}
+        <a href="{{ path('download_file') }}">Download file</a>
+    {% endif %}
 {% endblock %}
