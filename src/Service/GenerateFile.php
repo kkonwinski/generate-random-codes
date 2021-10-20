@@ -29,6 +29,7 @@ class GenerateFile
 
     public function writeCodesToFile(array $randomCodes): bool
     {
+
         foreach ($randomCodes as $code) {
             $this->filesystem->appendToFile(self::TMP_DIR_PATH . '/kody.txt', $code . "\r\n");
         }
