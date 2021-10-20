@@ -10,3 +10,7 @@
 ###< symfony/framework-bundle ###
 .idea
 .lando.yml
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###
