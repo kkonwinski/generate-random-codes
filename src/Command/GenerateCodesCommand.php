@@ -5,9 +5,7 @@ namespace App\Command;
 use App\Service\GenerateCode;
 use App\Service\GenerateFile;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -17,22 +15,34 @@ class GenerateCodesCommand extends Command
 {
     protected static $defaultName = 'app:generate-codes';
     protected static $defaultDescription = 'Command CLI to generates random codes';
+
+
+
     private Filesystem $filesystem;
+    private $filePath;
+    private GenerateFile $generateFile;
+    private GenerateCode $code;
 
-    public function __construct(string $name = null,Filesystem $filesystem)
-{
-    $this->filesystem = $filesystem;
+    public function __construct(
+        string $name = null,
+        Filesystem   $filesystem,
+        $filePath,
+        GenerateFile $generateFile,
+        GenerateCode $code
+    ) {
 
-    parent::__construct($name);
-}
+        parent::__construct($name);
+        $this->filesystem = $filesystem;
+
+        $this->filePath = $filePath;
+        $this->generateFile = $generateFile;
+        $this->code = $code;
+    }
 
     protected function configure(): void
     {
         $this
-//            ->addArgument('lengthOfCodes', InputArgument::REQUIRED,'Lenght of codes')
-//            ->addArgument('numberOfCodes', InputArgument::REQUIRED,'Number of Codes')
-            ->setHelp('This command generate random codes...')
-        ;
+            ->setHelp('This command generate random codes...');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,29 +54,38 @@ class GenerateCodesCommand extends Command
         $question2 = new Question('Please enter the number of codes: ');
 
 
-         $this->getHelper('question');
+        $this->getHelper('question');
 
         $len = $helper->ask($input, $output, $question);
         $num = $helper->ask($input, $output, $question2);
         $io = new SymfonyStyle($input, $output);
-//        $arg1 = $input->getArgument('lengthOfCodes');
-//        $arg2 = $input->getArgument('numberOfCodes');
-//
-        if ($len && $num) {
-            $code = new GenerateCode();
-            $codes = $code->generate((int)$num, (int)$len);
-            $file = new GenerateFile($this->filesystem);
-            $file->createFile();
-            $file->writeCodesToFile($codes);
-            $io->success(sprintf('You passed an argument: %s and %s', $len, $num));
+
+
+        if ($len !== null && $num !== null) {
+            $codes = $this->code->generate((int)$num, (int)$len);
+            $this->filesystem->mkdir($this->getFilePathDirectory());
+            $this->filesystem->touch($this->getFilePathDirectory() . '/kody.txt');
+
+            $this->generateFile->writeCodesToFile($codes);
+
+
+            $io->createProgressBar($num);
+
+            $io->info(sprintf(
+                'You create file in path %s with code: Lenght of codes: %s and number of codes: %s',
+                $this->getFilePathDirectory(),
+                $len,
+                $num
+            ));
+            return Command::SUCCESS;
         }
 
-//        if ($input->getOption('option1')) {
-//            // ...
-//        }
+        $io->error("Number of codes and lenght cannot be empty!");
+        return  Command::FAILURE;
+    }
 
-       // $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
-
-        return Command::SUCCESS;
+    public function getFilePathDirectory()
+    {
+        return $this->filePath;
     }
 }

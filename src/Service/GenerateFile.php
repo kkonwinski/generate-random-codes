@@ -5,23 +5,25 @@ namespace App\Service;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class GenerateFile
+class GenerateFile implements GenerateFileInterface
 {
-    const TMP_DIR_PATH = "../tmp";
 
     private Filesystem $filesystem;
 
-    public function __construct(Filesystem $filesystem)
+    private $filePath;
+
+    public function __construct(Filesystem $filesystem, $filePath)
     {
         $this->filesystem = $filesystem;
+        $this->filePath = $filePath;
     }
 
     public function createFile(): void
     {
 
         try {
-            $this->filesystem->mkdir(self::TMP_DIR_PATH);
-            $this->filesystem->touch(self::TMP_DIR_PATH . '/kody.txt');
+            $this->filesystem->mkdir($this->getFilePathDirectory());
+            $this->filesystem->touch($this->getFilePathDirectory() . '/kody.txt');
         } catch (IOExceptionInterface $exception) {
             echo "An error occurred while creating your directory at " . $exception->getPath();
         }
@@ -31,9 +33,13 @@ class GenerateFile
     {
 
         foreach ($randomCodes as $code) {
-            $this->filesystem->appendToFile(self::TMP_DIR_PATH . '/kody.txt', $code . "\r\n");
+            $this->filesystem->appendToFile($this->getFilePathDirectory() . '/kody.txt', $code . "\r\n");
         }
         return true;
+    }
 
+    public function getFilePathDirectory()
+    {
+        return $this->filePath;
     }
 }
